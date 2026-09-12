@@ -116,7 +116,55 @@ A aplicação (repositório 4) consome `db_secret_arn` para ler usuário, senha,
 
 ## CI/CD
 
-Pipeline de `validate` / `plan` / `apply` — ver `.github/workflows/`. *(a ser adicionado)*
+Dois workflows em `.github/workflows/`:
+
+| Workflow | Gatilho | O que faz |
+|---|---|---|
+| `pr.yml` | Todo Pull Request contra `main` | `fmt -check` → `init` → `validate` → `plan` (nunca aplica) |
+| `deploy.yml` | Push/merge na `main` | `fmt -check` → `init` → `validate` → `apply -auto-approve` |
+
+O `apply` é automático a cada merge na `main` — mas só **funciona** se as credenciais AWS cadastradas nos Secrets ainda estiverem válidas (ver seção abaixo sobre AWS Academy Learner Lab).
+
+### Configuração necessária no GitHub (Settings → Secrets and variables → Actions)
+
+**Secrets** (dados sensíveis, criptografados):
+
+| Nome | Descrição |
+|---|---|
+| `AWS_ACCESS_KEY_ID` | Access key da sessão do AWS Academy Learner Lab |
+| `AWS_SECRET_ACCESS_KEY` | Secret key da sessão do AWS Academy Learner Lab |
+| `AWS_SESSION_TOKEN` | Session token temporário (obrigatório no Learner Lab, além das duas chaves acima) |
+
+**Variables** (texto simples, não sensível):
+
+| Nome | Descrição | Exemplo |
+|---|---|---|
+| `TF_STATE_BUCKET` | Bucket S3 do state remoto | `fiap-soat-db-tfstate` |
+| `TF_STATE_KEY` | Path do state dentro do bucket | `db/prod/terraform.tfstate` |
+| `TF_STATE_REGION` | Região do bucket de state | `us-east-1` |
+| `VPC_ID` | ID da VPC (vem do repositório de infraestrutura Kubernetes) | `vpc-0123456789abcdef0` |
+| `SUBNET_IDS` | IDs das subnets, **em formato de lista JSON** (com colchetes e aspas duplas) | `["subnet-0abc123","subnet-0def456"]` |
+| `ALLOWED_SG_ID` | ID do Security Group do cluster Kubernetes | `sg-0123456789abcdef0` |
+| `DB_NAME` | Nome do banco de dados | `mecanica_db` |
+
+> ⚠️ `SUBNET_IDS` precisa estar entre colchetes e aspas duplas (formato JSON), porque a variável correspondente no Terraform é `list(string)`. Uma string solta (`subnet-abc,subnet-def`) falha na conversão de tipo durante o `plan`/`apply`.
+
+### ⚠️ AWS Academy Learner Lab — credenciais expiram
+
+As credenciais do Learner Lab são temporárias e expiram poucas horas após o início da sessão (`Start Lab`). O workflow **não renova isso sozinho**. Sempre que for necessário rodar o pipeline com um `apply` de verdade (ex: antes de gravar o vídeo de demonstração):
+
+1. Iniciar uma sessão nova no AWS Academy Learner Lab.
+2. Copiar as credenciais temporárias exibidas (`AWS Details` → `AWS CLI`).
+3. Atualizar os 3 Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`) no GitHub com os novos valores.
+4. Só então mergear o PR (ou fazer um novo commit em `main`) para disparar o `deploy.yml`.
+
+Se o merge acontecer com a sessão expirada, o step `Terraform apply` falha com erro de credencial/token expirado — não é um bug do código, é a natureza das credenciais temporárias do Learner Lab.
+
+### Branch protection
+
+A branch `main` deve estar protegida (Settings → Branches → Branch protection rule), exigindo:
+- Pull Request obrigatório antes de mergear (nenhum push direto na `main`);
+- O status check do `pr.yml` passando (`fmt`, `validate` e `plan` sem erro) antes de permitir o merge.
 
 ## Licença
 
