@@ -1,0 +1,3 @@
+bucket = "CHANGE_ME-fiap-soat-db-tfstate"
+key    = "db/prod/terraform.tfstate"
+region = "us-east-1"
