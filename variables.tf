@@ -28,7 +28,7 @@ variable "db_port" {
 variable "db_engine_version" {
   description = "Versão do Banco de dados"
   type        = string
-  default     = "17.1"
+  default     = "17"
 }
 
 variable "db_instance_class" {
