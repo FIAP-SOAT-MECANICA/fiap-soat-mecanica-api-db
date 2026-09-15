@@ -121,9 +121,9 @@ Dois workflows em `.github/workflows/`:
 | Workflow | Gatilho | O que faz |
 |---|---|---|
 | `pr.yml` | Todo Pull Request contra `main` | `fmt -check` → `init` → `validate` → `plan` (nunca aplica) |
-| `deploy.yml` | Push/merge na `main` | `fmt -check` → `init` → `validate` → `apply -auto-approve` |
+| `deploy.yml` | Push/merge na `main`, ou manual (`workflow_dispatch`, aba Actions → Run workflow) | `fmt -check` → `init` → `validate` → `apply -auto-approve` |
 
-O `apply` é automático a cada merge na `main` — mas só **funciona** se as credenciais AWS cadastradas nos Secrets ainda estiverem válidas (ver seção abaixo sobre AWS Academy Learner Lab).
+O `apply` roda a cada merge na `main`, ou sob demanda pela aba Actions — mas só **funciona** se as credenciais AWS cadastradas nos Secrets ainda estiverem válidas (ver seção abaixo sobre AWS Academy Learner Lab). O gatilho manual existe justamente para reaplicar sem precisar de um commit novo quando só as credenciais expiraram.
 
 ### Configuração necessária no GitHub (Settings → Secrets and variables → Actions)
 
