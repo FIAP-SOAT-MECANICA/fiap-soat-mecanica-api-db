@@ -169,3 +169,13 @@ A branch `main` deve estar protegida (Settings → Branches → Branch protectio
 ## Licença
 
 Ver [LICENSE](./LICENSE).
+
+## Documentação
+
+As decisões deste repositório estão em [`docs/`](docs/README.md):
+
+- [RFC-001](docs/rfc/RFC-001-rds-postgresql-learner-lab.md) — RDS PostgreSQL no AWS Academy Learner Lab: restrições, alternativas, custo e validação
+- [ADR-001](docs/adr/ADR-001-postgresql-rds-gerenciado.md) — PostgreSQL gerenciado no RDS, fora do cluster
+- [ADR-002](docs/adr/ADR-002-credenciais-secrets-manager.md) — credenciais geradas pelo Terraform e entregues pelo Secrets Manager
+- [ADR-003](docs/adr/ADR-003-rede-desacoplada-sg.md) — rede recebida do repositório Kubernetes e acesso restrito por Security Group
+- [ADR-004](docs/adr/ADR-004-state-s3-ambiente-unico.md) — state remoto em S3 e ambiente único de produção
